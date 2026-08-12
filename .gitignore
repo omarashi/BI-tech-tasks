@@ -1,0 +1,16 @@
+## .NET build artifacts
+bin/
+obj/
+*.user
+
+## Runtime databases
+*.db
+*.db-shm
+*.db-wal
+
+## IDE
+.vs/
+.idea/
+
+## Logs
+*.log
