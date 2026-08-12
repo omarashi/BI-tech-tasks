@@ -87,7 +87,7 @@ Invoke-RestMethod -Method Get -Uri 'http://localhost:5000/api/products' -Headers
 /odata/Categories
 ```
 
-Note: OData routes are not shown in Swagger; call them with the Bearer token.
+The OData routes also appear in Swagger under an **OData** section (added via a custom Swagger document filter in `ProductService/Swagger/ODataSwaggerFilter.cs`), so you can try them from the UI too. Remember to authorize with the Bearer token first.
 
 ## Security notes
 

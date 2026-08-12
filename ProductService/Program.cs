@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using ProductService.Data;
 using ProductService.Middleware;
 using ProductService.Models;
+using ProductService.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,6 +70,8 @@ builder.Services.AddSwaggerGen(options =>
             Array.Empty<string>()
         }
     });
+
+    options.DocumentFilter<ODataSwaggerFilter>();
 });
 
 var app = builder.Build();
