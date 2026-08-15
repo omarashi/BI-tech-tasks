@@ -17,11 +17,13 @@ public class ProductsODataController : ODataController
 
     public ProductsODataController(ProductDbContext db) => _db = db;
 
+    private IQueryable<Product> Products => _db.Products.Include(p => p.Category);
+
     [EnableQuery]
     [HttpGet("odata/Products")]
-    public IActionResult Get() => Ok(_db.Products.Include(p => p.Category).AsQueryable());
+    public IActionResult Get() => Ok(Products);
 
     [EnableQuery]
     [HttpGet("odata/Products({key})")]
-    public IActionResult Get(int key) => Ok(Microsoft.AspNetCore.OData.Results.SingleResult.Create(_db.Products.Include(p => p.Category).Where(p => p.Id == key)));
+    public IActionResult Get(int key) => Ok(Microsoft.AspNetCore.OData.Results.SingleResult.Create(Products.Where(p => p.Id == key)));
 }

@@ -10,6 +10,7 @@ using ProductService.Data;
 using ProductService.Middleware;
 using ProductService.Models;
 using ProductService.Swagger;
+using Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,18 +24,9 @@ builder.Services.AddDbContext<ProductDbContext>(opt =>
 
 builder.Services.AddScoped<ProductService.Services.ICatalogService, ProductService.Services.CatalogService>();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngular", policy =>
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyHeader()
-              .AllowAnyMethod());
-});
+builder.Services.AddAllowAngularCors(allowedOrigins);
 
-var jwtKey = builder.Configuration["Jwt:Key"];
-if (string.IsNullOrEmpty(jwtKey) || jwtKey.Length < 32)
-    throw new InvalidOperationException(
-        "Jwt:Key is not configured. Set the shared Jwt__Key environment variable (all services must use the same signing key).");
+var jwtKey = builder.Configuration.RequireJwtKey();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

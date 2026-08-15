@@ -3,6 +3,7 @@ using AuthService.Data;
 using AuthService.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,21 +12,12 @@ builder.WebHost.UseUrls(builder.Configuration["Urls"] ?? "http://localhost:5001"
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? Array.Empty<string>();
 
-var jwtKey = builder.Configuration["Jwt:Key"];
-if (string.IsNullOrEmpty(jwtKey) || jwtKey.Length < 32)
-    throw new InvalidOperationException(
-        "Jwt:Key is not configured. Set the shared Jwt__Key environment variable (all services must use the same signing key).");
+var jwtKey = builder.Configuration.RequireJwtKey();
 
 builder.Services.AddDbContext<AuthDbContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngular", policy =>
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyHeader()
-              .AllowAnyMethod());
-});
+builder.Services.AddAllowAngularCors(allowedOrigins);
 
 builder.Services.AddRateLimiter(options =>
 {
