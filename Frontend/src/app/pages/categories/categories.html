@@ -1,0 +1,75 @@
+<section>
+  <div class="page-header">
+    <h1>Categories</h1>
+  </div>
+
+  @if (message()) {
+    <p class="success">{{ message() }}</p>
+  }
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (isAdmin) {
+    <div class="add-form">
+      <input
+        type="text"
+        placeholder="New category name"
+        [ngModel]="newName()"
+        (ngModelChange)="newName.set($event)"
+        (keyup.enter)="onAdd()"
+      />
+      <button class="btn btn-primary" (click)="onAdd()" [disabled]="saving()">Add</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <p>Loading categories…</p>
+  } @else if (categories().length === 0) {
+    <p>No categories found.</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          @if (isAdmin) {
+            <th>Actions</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (category of categories(); track category.id) {
+          <tr>
+            <td>{{ category.id }}</td>
+            @if (editingId() === category.id) {
+              <td>
+                <input
+                  type="text"
+                  [ngModel]="editingName()"
+                  (ngModelChange)="editingName.set($event)"
+                  (keyup.enter)="saveEdit(category)"
+                />
+              </td>
+              <td>
+                <button class="btn btn-primary btn-sm" (click)="saveEdit(category)" [disabled]="saving()">
+                  Save
+                </button>
+                <button class="btn btn-secondary btn-sm" (click)="cancelEdit()">Cancel</button>
+              </td>
+            } @else {
+              <td>{{ category.name }}</td>
+              @if (isAdmin) {
+                <td class="actions">
+                  <a class="link-edit" (click)="startEdit(category)">Edit</a>
+                  <a class="link-danger" (click)="onDelete(category)">Delete</a>
+                </td>
+              }
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

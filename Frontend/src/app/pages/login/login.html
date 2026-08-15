@@ -1,0 +1,38 @@
+<div class="login-page">
+  <form class="login-card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <h2>Product Catalog</h2>
+    <p class="subtitle">Sign in to continue</p>
+
+    <label for="username">Username</label>
+    <input
+      id="username"
+      type="text"
+      formControlName="username"
+      placeholder="admin"
+      [class.invalid]="submitted() && form.controls.username.invalid"
+    />
+    @if (submitted() && form.controls.username.invalid) {
+      <p class="field-error">Username is required.</p>
+    }
+
+    <label for="password">Password</label>
+    <input
+      id="password"
+      type="password"
+      formControlName="password"
+      placeholder="••••••••"
+      [class.invalid]="submitted() && form.controls.password.invalid"
+    />
+    @if (submitted() && form.controls.password.invalid) {
+      <p class="field-error">Password is required.</p>
+    }
+
+    @if (error()) {
+      <p class="error banner">{{ error() }}</p>
+    }
+
+    <button type="submit" class="btn btn-primary" [disabled]="loading()">
+      {{ loading() ? 'Signing in…' : 'Sign in' }}
+    </button>
+  </form>
+</div>

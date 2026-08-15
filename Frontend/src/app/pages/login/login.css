@@ -1,0 +1,30 @@
+.login-page {
+  display: flex;
+  justify-content: center;
+  padding: 4rem 1rem;
+}
+
+.login-card {
+  background: var(--surface);
+  padding: 2.25rem;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 380px;
+  border-top: 4px solid var(--primary);
+}
+
+.login-card h2 {
+  margin: 0 0 0.25rem;
+  color: #c7d2fe;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin: 0 0 1.5rem;
+}
+
+.login-card .btn {
+  margin-top: 1.5rem;
+  width: 100%;
+}

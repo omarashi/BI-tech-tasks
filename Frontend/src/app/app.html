@@ -1,0 +1,16 @@
+<header class="navbar">
+  <a routerLink="/products" class="brand">Product Catalog</a>
+  <nav>
+    @if (isLoggedIn) {
+      <a routerLink="/products" routerLinkActive="active">Products</a>
+      <a routerLink="/categories" routerLinkActive="active">Categories</a>
+      <span class="user">Hi, {{ username }}</span>
+      <button type="button" class="nav-button" (click)="logout()">Logout</button>
+    } @else {
+      <a routerLink="/login" routerLinkActive="active">Login</a>
+    }
+  </nav>
+</header>
+<main>
+  <router-outlet />
+</main>

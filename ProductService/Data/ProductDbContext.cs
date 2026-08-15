@@ -13,9 +13,9 @@ public class ProductDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var decimalConverter = new ValueConverter<decimal, double>(
-            v => (double)v,
-            v => (decimal)v);
+        var decimalConverter = new ValueConverter<decimal, int>(
+            v => (int)(v * 100m),
+            v => v / 100m);
 
         modelBuilder.Entity<Product>()
             .Property(p => p.Price)

@@ -1,0 +1,27 @@
+<section>
+  @if (loading()) {
+    <p>Loading…</p>
+  } @else if (error()) {
+    <p class="error">{{ error() }}</p>
+  } @else if (product(); as p) {
+    <div class="page-header">
+      <h1>{{ p.name }}</h1>
+      @if (isAdmin) {
+        <a [routerLink]="['/products', p.id, 'edit']" class="btn btn-primary">Edit</a>
+      }
+    </div>
+
+    <dl>
+      <dt>Description</dt>
+      <dd>{{ p.description || '—' }}</dd>
+      <dt>Price</dt>
+      <dd>{{ p.price | currency }}</dd>
+      <dt>Stock</dt>
+      <dd>{{ p.stock }}</dd>
+      <dt>Category</dt>
+      <dd>{{ p.categoryName }}</dd>
+    </dl>
+
+    <a routerLink="/products" class="btn btn-secondary">Back to products</a>
+  }
+</section>

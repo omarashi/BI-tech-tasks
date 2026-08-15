@@ -1,0 +1,81 @@
+<section>
+  <div class="page-header">
+    <h1>Products</h1>
+    @if (isAdmin) {
+      <a routerLink="/products/new" class="btn btn-primary">+ New product</a>
+    }
+  </div>
+
+  @if (message()) {
+    <p class="success">{{ message() }}</p>
+  }
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <div class="filters">
+    <input
+      type="search"
+      placeholder="Search by name…"
+      [value]="search()"
+      (input)="onSearch($event)"
+    />
+    <select [value]="categoryId() ?? ''" (change)="onCategory($event)">
+      <option value="">All categories</option>
+      @for (cat of categories(); track cat.id) {
+        <option [value]="cat.id">{{ cat.name }}</option>
+      }
+    </select>
+  </div>
+
+  @if (loading()) {
+    <p>Loading products…</p>
+  } @else if (products().length === 0) {
+    <p>No products found.</p>
+  }   @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="sortable" (click)="onSort('Name')">
+              Name <span class="sort">{{ sortBy() === 'Name' ? (sortDir() === 'asc' ? '▲' : '▼') : '' }}</span>
+            </th>
+            <th class="sortable" (click)="onSort('Price')">
+              Price <span class="sort">{{ sortBy() === 'Price' ? (sortDir() === 'asc' ? '▲' : '▼') : '' }}</span>
+            </th>
+            <th>Stock</th>
+            <th>Category</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products(); track product.id) {
+            <tr>
+              <td>{{ product.name }}</td>
+              <td>{{ product.price | currency }}</td>
+              <td>{{ product.stock }}</td>
+              <td>{{ product.categoryName }}</td>
+              <td class="actions">
+                <a [routerLink]="['/products', product.id]">View</a>
+                @if (isAdmin) {
+                  <a [routerLink]="['/products', product.id, 'edit']">Edit</a>
+                  <a class="link-danger" (click)="onDelete(product)">Delete</a>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button class="btn btn-secondary btn-sm" (click)="prevPage()" [disabled]="page() <= 1">
+        ‹ Prev
+      </button>
+      <span>Page {{ page() }} of {{ totalPages }} · {{ total() }} product(s)</span>
+      <button class="btn btn-secondary btn-sm" (click)="nextPage()" [disabled]="page() >= totalPages">
+        Next ›
+      </button>
+    </div>
+  }
+</section>

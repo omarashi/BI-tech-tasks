@@ -26,7 +26,14 @@ Each service owns its own SQLite database (`auth.db`, `product.db`) and runs ind
 
 ## How to run
 
-Run each service in its own terminal window.
+Both services sign/validate JWTs with a shared signing key, so set the `Jwt__Key`
+environment variable (at least 32 chars) in every terminal first:
+
+```powershell
+$env:Jwt__Key = 'use-a-long-random-string-of-at-least-32-characters'
+```
+
+Then run each service in its own terminal window.
 
 Terminal 1:
 ```
@@ -41,6 +48,10 @@ dotnet run
 ```
 
 Wait for both to print `Now listening on: ...` before testing.
+
+Quickest way — `.\run-all.ps1` starts AuthService, ProductService and the Angular
+frontend (`http://localhost:4200`) with one command and sets the key for you.
+Stop everything with `.\run-all.ps1 -Stop`.
 
 ## Test credentials
 
@@ -91,6 +102,7 @@ The OData routes also appear in Swagger under an **OData** section (added via a 
 
 ## Security notes
 
-- The JWT key in `appsettings.json` is a **development placeholder**.
+- The JWT key in `run-all.ps1` is a **development placeholder**.
 - For real deployments, override it with the `Jwt__Key` environment variable and never commit a real secret.
+- Login and registration are rate-limited (20 requests / 5 minutes per IP).
 - Passwords are stored as password hashes (via `PasswordHasher`), never in plaintext.

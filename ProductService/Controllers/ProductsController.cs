@@ -10,17 +10,17 @@ namespace ProductService.Controllers;
 [Authorize]
 public class ProductsController : ControllerBase
 {
-    private readonly IProductService _service;
+    private readonly ICatalogService _service;
 
-    public ProductsController(IProductService service) => _service = service;
+    public ProductsController(ICatalogService service) => _service = service;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
+    public async Task<IActionResult> GetAll() => Ok(await _service.GetProductsAsync());
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var product = await _service.GetByIdAsync(id);
+        var product = await _service.GetProductAsync(id);
         return product == null ? NotFound() : Ok(product);
     }
 
@@ -28,7 +28,7 @@ public class ProductsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] ProductDto dto)
     {
-        var created = await _service.CreateAsync(dto);
+        var created = await _service.CreateProductAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -36,7 +36,7 @@ public class ProductsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] ProductDto dto)
     {
-        var ok = await _service.UpdateAsync(id, dto);
+        var ok = await _service.UpdateProductAsync(id, dto);
         return ok ? NoContent() : NotFound();
     }
 
@@ -44,7 +44,7 @@ public class ProductsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        var ok = await _service.DeleteAsync(id);
+        var ok = await _service.DeleteProductAsync(id);
         return ok ? NoContent() : NotFound();
     }
 }

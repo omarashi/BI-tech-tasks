@@ -1,5 +1,4 @@
 using AuthService.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Data;
@@ -12,14 +11,20 @@ public class AuthDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var hasher = new PasswordHasher<User>();
-
-        var admin = new User { Id = 1, Username = "admin", Role = "Admin", PasswordHash = "" };
-        admin.PasswordHash = hasher.HashPassword(admin, "Admin@123");
-
-        var user = new User { Id = 2, Username = "user", Role = "User", PasswordHash = "" };
-        user.PasswordHash = hasher.HashPassword(user, "User@123");
-
-        modelBuilder.Entity<User>().HasData(admin, user);
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = 1,
+                Username = "admin",
+                Role = "Admin",
+                PasswordHash = "AQAAAAIAAYagAAAAED8AU4vnthdHOMHKrYMCLTWEaz+KglvvV+pDXxAM2GYmJSt44ZMPoxAOIXE/JJfm4g=="
+            },
+            new User
+            {
+                Id = 2,
+                Username = "user",
+                Role = "User",
+                PasswordHash = "AQAAAAIAAYagAAAAEDhY2vdlraYvuBY6eM07/MWvwR0HTl6cq5oHhSSM4K4RZNXSOLr3uuZckV05sPVKyg=="
+            });
     }
 }
