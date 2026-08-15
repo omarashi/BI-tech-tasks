@@ -1,6 +1,6 @@
 # Product Catalog — Secure Microservices API
 
-A secure **ASP.NET Core 8** product catalog built as two independent microservices with JWT authentication, OData querying, RESTful CRUD, and custom middleware.
+A secure **ASP.NET Core 8** product catalog built as two independent microservices with JWT authentication, OData querying, RESTful CRUD, and custom middleware, plus an Angular web UI.
 
 ## Architecture
 
@@ -9,20 +9,23 @@ A secure **ASP.NET Core 8** product catalog built as two independent microservic
 | `AuthService` | 5001 | Login, verifies passwords, issues JWT tokens |
 | `ProductService` | 5000 | Product catalog — REST CRUD + OData + custom middleware |
 | `Shared` | — | DTOs shared between the services |
+| `Frontend` | 4200 | Angular web UI — login, product & category management |
 
 Each service owns its own SQLite database (`auth.db`, `product.db`) and runs independently.
 
 ## Requirements coverage
 
-- **RESTful CRUD** — `ProductService/Controllers/ProductsController.cs` (`GET`, `GET/{id}`, `POST`, `PUT`, `DELETE`)
+- **RESTful CRUD** — `ProductService/Controllers/ProductsController.cs` + `CategoriesController.cs` (`GET`, `GET/{id}`, `POST`, `PUT`, `DELETE`)
 - **OData endpoints** — `ProductService/Controllers/ProductsODataController.cs` + `CategoriesODataController.cs` (`$filter`, `$orderby`, `$top`, `$select`, `$expand`)
 - **Custom middleware** — `ProductService/Middleware/RequestLoggingMiddleware.cs` logs every request
 - **JWT authentication & authorization** — AuthService issues tokens; ProductService validates them and enforces roles (`Admin` vs `User`)
 - **Microservice architecture** — two independently deployable services, separate ports and databases
+- **Web UI** — `Frontend/` Angular app for login, product and category management
 
 ## Prerequisites
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Node.js 20+](https://nodejs.org/) and npm (for the Angular frontend)
 
 ## How to run
 
@@ -47,10 +50,17 @@ cd ProductService
 dotnet run
 ```
 
-Wait for both to print `Now listening on: ...` before testing.
+Terminal 3 (frontend):
+```
+cd Frontend
+npm install
+npm start
+```
+
+Wait for all to print `Now listening on: ...` before testing. The app is at `http://localhost:4200`.
 
 Quickest way — `.\run-all.ps1` starts AuthService, ProductService and the Angular
-frontend (`http://localhost:4200`) with one command and sets the key for you.
+frontend with one command and sets the key for you.
 Stop everything with `.\run-all.ps1 -Stop`.
 
 ## Test credentials
@@ -87,6 +97,10 @@ Invoke-RestMethod -Method Get -Uri 'http://localhost:5000/api/products' -Headers
 | `POST` | `/api/products` | Admin only |
 | `PUT` | `/api/products/{id}` | Admin only |
 | `DELETE` | `/api/products/{id}` | Admin only |
+| `GET` | `/api/categories` | Any authenticated user |
+| `POST` | `/api/categories` | Admin only |
+| `PUT` | `/api/categories/{id}` | Admin only |
+| `DELETE` | `/api/categories/{id}` | Admin only |
 
 ### OData (`http://localhost:5000/odata/...`, also JWT-protected)
 
