@@ -24,12 +24,12 @@ public class ServiceResult<T> : ServiceResult
 
     public static ServiceResult<T> Ok(T data) => new() { Success = true, Data = data };
 
-    public static ServiceResult<T> Missing() => new()
+    public static new ServiceResult<T> Missing() => new()
     {
         Success = false,
         NotFound = true,
         Error = "The requested resource was not found."
     };
 
-    public static ServiceResult<T> Fail(string error) => new() { Success = false, Error = error };
+    public static new ServiceResult<T> Fail(string error) => new() { Success = false, Error = error };
 }

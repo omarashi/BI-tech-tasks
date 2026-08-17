@@ -16,6 +16,10 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${API_AUTH_URL}/api/auth/login`, { username, password });
   }
 
+  register(username: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${API_AUTH_URL}/api/auth/register`, { username, password });
+  }
+
   saveSession(response: LoginResponse): void {
     localStorage.setItem(this.tokenKey, response.token);
     localStorage.setItem(this.roleKey, response.user.role);

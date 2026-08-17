@@ -5,11 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
-using Microsoft.OpenApi.Models;
 using ProductService.Data;
 using ProductService.Middleware;
 using ProductService.Models;
-using ProductService.Swagger;
 using Shared;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,41 +48,7 @@ builder.Services.AddControllers()
         .AddRouteComponents("odata", GetEdmModel())
         .EnableQueryFeatures(100));
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter your JWT token."
-    });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-
-    options.DocumentFilter<ODataSwaggerFilter>();
-});
-
 var app = builder.Build();
-
-app.UseSwagger();
-app.UseSwaggerUI();
 
 if (app.Environment.IsDevelopment())
 {

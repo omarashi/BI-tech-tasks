@@ -35,13 +35,9 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
 app.UseCors("AllowAngular");
 app.UseRateLimiter();
 app.MapControllers();

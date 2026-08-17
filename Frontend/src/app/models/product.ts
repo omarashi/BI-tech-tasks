@@ -8,7 +8,7 @@ export interface Product {
   categoryName: string;
 }
 
-export type SortColumn = 'Name' | 'Price';
+export type SortColumn = 'Name' | 'Price' | 'Stock' | 'CategoryName';
 
 export interface ProductQuery {
   search?: string;

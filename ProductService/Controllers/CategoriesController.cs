@@ -14,9 +14,6 @@ public class CategoriesController : ControllerBase
 
     public CategoriesController(ICatalogService service) => _service = service;
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _service.GetCategoriesAsync());
-
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] CategoryDto dto)
@@ -25,7 +22,7 @@ public class CategoriesController : ControllerBase
             return BadRequest("Category name is required.");
 
         var created = await _service.CreateCategoryAsync(dto);
-        return CreatedAtAction(nameof(GetAll), created);
+        return Ok(created);
     }
 
     [HttpPut("{id:int}")]

@@ -14,22 +14,12 @@ public class ProductsController : ControllerBase
 
     public ProductsController(ICatalogService service) => _service = service;
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _service.GetProductsAsync());
-
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var product = await _service.GetProductAsync(id);
-        return product == null ? NotFound() : Ok(product);
-    }
-
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] ProductDto dto)
     {
         var created = await _service.CreateProductAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        return Ok(created);
     }
 
     [HttpPut("{id:int}")]

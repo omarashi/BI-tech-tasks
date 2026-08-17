@@ -43,8 +43,12 @@
             <th class="sortable" (click)="onSort('Price')">
               Price <span class="sort">{{ sortBy() === 'Price' ? (sortDir() === 'asc' ? '▲' : '▼') : '' }}</span>
             </th>
-            <th>Stock</th>
-            <th>Category</th>
+            <th class="sortable" (click)="onSort('Stock')">
+              Stock <span class="sort">{{ sortBy() === 'Stock' ? (sortDir() === 'asc' ? '▲' : '▼') : '' }}</span>
+            </th>
+            <th class="sortable" (click)="onSort('CategoryName')">
+              Category <span class="sort">{{ sortBy() === 'CategoryName' ? (sortDir() === 'asc' ? '▲' : '▼') : '' }}</span>
+            </th>
             <th>Actions</th>
           </tr>
         </thead>

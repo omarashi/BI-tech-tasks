@@ -20,6 +20,7 @@ export class Login implements OnInit {
   readonly error = signal('');
   readonly loading = signal(false);
   readonly submitted = signal(false);
+  readonly isRegisterMode = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     username: ['', Validators.required],
@@ -33,13 +34,16 @@ export class Login implements OnInit {
     }
 
     this.route.queryParamMap.subscribe((params) => {
-      const reason = params.get('reason');
-      if (reason === 'session-expired') {
+      if (params.get('reason') === 'session-expired') {
         this.error.set('Your session has expired. Please sign in again.');
-      } else if (reason === 'login-required') {
-        this.error.set('Please sign in to continue.');
       }
     });
+  }
+
+  toggleMode(): void {
+    this.isRegisterMode.set(!this.isRegisterMode());
+    this.submitted.set(false);
+    this.error.set('');
   }
 
   onSubmit(): void {
@@ -53,7 +57,11 @@ export class Login implements OnInit {
     this.error.set('');
     this.loading.set(true);
 
-    this.auth.login(username, password).subscribe({
+    const request = this.isRegisterMode()
+      ? this.auth.register(username, password)
+      : this.auth.login(username, password);
+
+    request.subscribe({
       next: (response) => {
         this.auth.saveSession(response);
         this.router.navigate(['/products'], { replaceUrl: true });

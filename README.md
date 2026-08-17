@@ -15,7 +15,7 @@ Each service owns its own SQLite database (`auth.db`, `product.db`) and runs ind
 
 ## Requirements coverage
 
-- **RESTful CRUD** — `ProductService/Controllers/ProductsController.cs` + `CategoriesController.cs` (`GET`, `GET/{id}`, `POST`, `PUT`, `DELETE`)
+- **RESTful writes** — `ProductService/Controllers/ProductsController.cs` + `CategoriesController.cs` (`POST`, `PUT`, `DELETE`); all reads go through the OData controllers
 - **OData endpoints** — `ProductService/Controllers/ProductsODataController.cs` + `CategoriesODataController.cs` (`$filter`, `$orderby`, `$top`, `$select`, `$expand`)
 - **Custom middleware** — `ProductService/Middleware/RequestLoggingMiddleware.cs` logs every request
 - **JWT authentication & authorization** — AuthService issues tokens; ProductService validates them and enforces roles (`Admin` vs `User`)
@@ -83,24 +83,23 @@ Or step by step in PowerShell:
 $login = Invoke-RestMethod -Method Post -Uri 'http://localhost:5001/api/auth/login' -ContentType 'application/json' -Body '{"username":"admin","password":"Admin@123"}'
 $h = @{ Authorization = "Bearer $($login.token)" }
 
-Invoke-RestMethod -Method Get -Uri 'http://localhost:5000/api/products' -Headers $h
+Invoke-RestMethod -Method Get -Uri 'http://localhost:5000/odata/Products' -Headers $h
 ```
 
 ## Endpoints
 
-### REST (Swagger: `http://localhost:5000/swagger`)
+### REST writes
 
 | Method | Route | Access |
 |---|---|---|
-| `GET` | `/api/products` | Any authenticated user |
-| `GET` | `/api/products/{id}` | Any authenticated user |
 | `POST` | `/api/products` | Admin only |
 | `PUT` | `/api/products/{id}` | Admin only |
 | `DELETE` | `/api/products/{id}` | Admin only |
-| `GET` | `/api/categories` | Any authenticated user |
 | `POST` | `/api/categories` | Admin only |
 | `PUT` | `/api/categories/{id}` | Admin only |
 | `DELETE` | `/api/categories/{id}` | Admin only |
+
+All reads go through the OData endpoints below (single-product lookup: `/odata/Products({id})?$expand=Category`).
 
 ### OData (`http://localhost:5000/odata/...`, also JWT-protected)
 
@@ -109,10 +108,45 @@ Invoke-RestMethod -Method Get -Uri 'http://localhost:5000/api/products' -Headers
 /odata/Products?$orderby=Name
 /odata/Products?$top=3
 /odata/Products?$select=Name,Price
+/odata/Products(1)?$expand=Category
 /odata/Categories
 ```
 
-The OData routes also appear in Swagger under an **OData** section (added via a custom Swagger document filter in `ProductService/Swagger/ODataSwaggerFilter.cs`), so you can try them from the UI too. Remember to authorize with the Bearer token first.
+All requests must be authenticated with a Bearer token.
+
+## Frontend architecture
+
+The Angular 22 frontend lives in `Frontend/` and uses standalone components (no `NgModule`), signals for reactive state, and the new `@if`/`@for` control flow syntax.
+
+| Folder | Purpose |
+|---|---|
+| `src/app/services/` | HTTP clients wrapping `HttpClient` — `catalog.service.ts` (all catalog calls) and `auth.service.ts` (login, token storage) |
+| `src/app/interceptors/` | `jwt.interceptor.ts` — attaches `Authorization: Bearer` to every outgoing request; `http-error.interceptor.ts` — catches 401 errors, clears session, redirects to login |
+| `src/app/guards/` | `authGuard` — blocks unauthenticated navigation; `adminGuard` — blocks non-admin users from write pages |
+| `src/app/models/` | TypeScript interfaces mirroring the C# DTOs (`Product`, `Category`, `User`, `OData*`) |
+| `src/app/shared/` | `api-urls.ts` (environment-based base URLs), `http-error.ts` (user-friendly error messages) |
+| `src/app/pages/` | Routed view components: `login`, `products`, `product-detail`, `product-form`, `categories` |
+
+### Frontend ↔ Backend communication
+
+- **Reads** go through OData endpoints (`GET /odata/Products?$filter=...&$expand=Category`), giving the frontend flexible query power (filtering, sorting, pagination, column projection) with zero per-query backend code.
+- **Writes** go through REST endpoints (`POST/PUT/DELETE /api/products`, `/api/categories`), which enforce Admin-only authorization.
+- All requests carry a JWT Bearer token (auto-attached by the interceptor). The token is stored in `localStorage` with three keys: `auth_token`, `auth_role`, `auth_user`.
+
+### Design patterns
+
+| Pattern | Where | Purpose |
+|---|---|---|
+| Microservice / service-per-domain | Solution layout | Independent deployment, separate databases, clear ownership |
+| MVC (Controller-based REST) | `Controllers/` + `Models/` | HTTP layer separated from business logic |
+| Service layer | `Services/CatalogService.cs` | Encapsulates business rules, keeps controllers thin |
+| DTO (Data Transfer Object) | `Shared/*.Dto.cs` | Decouples wire format from internal EF entities |
+| Result object | `Shared/ServiceResult.cs` | Methods return `ServiceResult<T>` instead of throwing on expected failures |
+| Dependency Injection | `Program.cs` + constructors | All services wired through ASP.NET Core / Angular DI containers |
+| Pipeline/Middleware | `RequestLoggingMiddleware`, Angular interceptors | Cross-cutting concerns (logging, auth, error handling) |
+| Route guards | `guards/auth.guard.ts` | Prevents unauthorized navigation before the page loads |
+| Server-side pagination | `$top/$skip/$count` | Only one page of data held in the frontend at a time |
+| Integer-cents money storage | `ProductDbContext` | `decimal Price` stored as `int (price * 100)` to avoid floating-point precision issues |
 
 ## Security notes
 
@@ -120,3 +154,4 @@ The OData routes also appear in Swagger under an **OData** section (added via a 
 - For real deployments, override it with the `Jwt__Key` environment variable and never commit a real secret.
 - Login and registration are rate-limited (20 requests / 5 minutes per IP).
 - Passwords are stored as password hashes (via `PasswordHasher`), never in plaintext.
+- JWT tokens expire after 1 hour; the frontend catches 401 responses and redirects to login automatically.

@@ -7,8 +7,6 @@ namespace ProductService.Services;
 
 public interface ICatalogService
 {
-    Task<List<ProductDto>> GetProductsAsync();
-    Task<ProductDto?> GetProductAsync(int id);
     Task<ProductDto> CreateProductAsync(ProductDto dto);
     Task<bool> UpdateProductAsync(int id, ProductDto dto);
     Task<bool> DeleteProductAsync(int id);
@@ -25,30 +23,7 @@ public class CatalogService : ICatalogService
 
     public CatalogService(ProductDbContext db) => _db = db;
 
-    private static ProductDto ToDto(Product p) => new()
-    {
-        Id = p.Id,
-        Name = p.Name,
-        Description = p.Description,
-        Price = p.Price,
-        Stock = p.Stock,
-        CategoryId = p.CategoryId,
-        CategoryName = p.Category?.Name ?? string.Empty
-    };
-
     private static CategoryDto ToDto(Category c) => new() { Id = c.Id, Name = c.Name };
-
-    public async Task<List<ProductDto>> GetProductsAsync()
-    {
-        var products = await _db.Products.AsNoTracking().Include(p => p.Category).ToListAsync();
-        return products.Select(p => ToDto(p)).ToList();
-    }
-
-    public async Task<ProductDto?> GetProductAsync(int id)
-    {
-        var p = await _db.Products.AsNoTracking().Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
-        return p == null ? null : ToDto(p);
-    }
 
     public async Task<ProductDto> CreateProductAsync(ProductDto dto)
     {

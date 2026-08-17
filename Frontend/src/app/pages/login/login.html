@@ -1,7 +1,7 @@
 <div class="login-page">
   <form class="login-card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-    <h2>Product Catalog</h2>
-    <p class="subtitle">Sign in to continue</p>
+    <h2>{{ isRegisterMode() ? 'Create account' : 'Product Catalog' }}</h2>
+    <p class="subtitle">{{ isRegisterMode() ? 'Register to get started' : 'Sign in to continue' }}</p>
 
     <label for="username">Username</label>
     <input
@@ -32,7 +32,14 @@
     }
 
     <button type="submit" class="btn btn-primary" [disabled]="loading()">
-      {{ loading() ? 'Signing in…' : 'Sign in' }}
+      {{ loading() ? 'Working…' : (isRegisterMode() ? 'Create account' : 'Sign in') }}
     </button>
+
+    <p class="toggle">
+      {{ isRegisterMode() ? 'Already have an account?' : 'No account yet?' }}
+      <button type="button" class="link" (click)="toggleMode()">
+        {{ isRegisterMode() ? 'Sign in' : 'Create an account' }}
+      </button>
+    </p>
   </form>
 </div>
